@@ -51,8 +51,10 @@ func main() {
 	r.Handle("/profile", middleware.GatedContentHandler(handlers.MyProfileHandler)).Methods("GET")
 	r.Handle("/profile/{username}", middleware.GatedContentHandler(handlers.ProfileHandler)).Methods("GET")
 	r.Handle("/postpreview", middleware.GatedContentHandler(handlers.PostPreviewHandler)).Methods("GET", "POST")
-	r.Handle("/upload-image", middleware.GatedContentHandler(handlers.UploadImageHandler)).Methods("GET", "POST")
-	r.Handle("/upload-video", middleware.GatedContentHandler(handlers.UploadVideoHandler)).Methods("GET", "POST")
+	//r.Handle("/", index())
+	//http.HandleFunc("/upload", uploadFile)
+	r.HandleFunc("/upload-image", handlers.UploadImageHandler)
+	r.HandleFunc("/upload-image", handlers.UploadVideoHandler)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
@@ -60,7 +62,7 @@ func main() {
 	stdChain := alice.New(middleware.PanicRecoveryHandler)
 	http.Handle("/", stdChain.Then(loggedRouter))
 
-	err = http.ListenAndServeTLS(WEBSERVERPORT, "certs/gopherfacecert.pem", "certs/gopherfacekey.pem", nil)
+	err = http.ListenAndServe(WEBSERVERPORT, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
